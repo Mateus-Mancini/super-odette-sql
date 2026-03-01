@@ -1,0 +1,49 @@
+name: Flyway Migration Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install Python dependencies
+        run: |
+          pip install pandas openpyxl
+
+      - name: 🏗 Generate Flyway migration from Excel
+        run: |
+          python scripts/generate_seed.py
+
+      - name: 🛠 Show generated migrations
+        run: |
+          ls -la db/migration
+
+      - name: 🔎 Flyway Info
+        uses: docker://flyway/flyway:12.0.3
+        with:
+          args: info
+        env:
+          FLYWAY_URL: ${{ secrets.NEON_DB_URL }}
+          FLYWAY_USER: ${{ secrets.NEON_DB_USER }}
+          FLYWAY_PASSWORD: ${{ secrets.NEON_DB_PASSWORD }}
+
+      - name: 🚀 Flyway Validate + Migrate
+        uses: docker://flyway/flyway:12.0.3
+        with:
+          args: migrate
+        env:
+          FLYWAY_URL: ${{ secrets.NEON_DB_URL }}
+          FLYWAY_USER: ${{ secrets.NEON_DB_USER }}
+          FLYWAY_PASSWORD: ${{ secrets.NEON_DB_PASSWORD }}
