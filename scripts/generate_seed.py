@@ -240,7 +240,7 @@ for professor_name in sorted(full_df["teacher_name"].unique()):
 
     sql_lines.append(f"""
 INSERT INTO usuario (nCdTipoUsuario, cNome, cEmail, cSenha)
-VALUES (2, '{sql_escape(professor_name)}', '{sql_escape(email)}', '123456')
+VALUES (2, '{sql_escape(professor_name)}', '{sql_escape(email)}', '$2a$10$7OzW4cC5FJs9BwSUIK5TPu7l9h5AsjyW.IHboWOhdNRN36jvBXQH6')
 ON CONFLICT (cEmail)
 DO NOTHING;
 """)
